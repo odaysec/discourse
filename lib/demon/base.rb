@@ -25,9 +25,14 @@ class Demon::Base
     end
   end
 
-  def self.start(count = 1, verbose: false, logger: nil)
+  def self.start(count = 1, verbose: false, logger: nil, **)
     @demons ||= {}
-    count.times { |i| (@demons["#{prefix}_#{i}"] ||= new(i, verbose:, logger:)).start }
+    current_size = @demons.size
+    count.times do |i|
+      (
+        @demons["#{prefix}_#{current_size + i}"] ||= new(current_size + i, verbose:, logger:, **)
+      ).start
+    end
   end
 
   def self.stop

@@ -8,6 +8,9 @@ require "mini_scheduler_long_running_job_logger"
 Sidekiq.configure_client { |config| config.redis = Discourse.sidekiq_redis_config }
 
 Sidekiq.configure_server do |config|
+  puts "====================================================="
+  puts "===> OLD? #{!!ENV["OLD"]}"
+  puts "====================================================="
   config.redis = Discourse.sidekiq_redis_config
 
   config.server_middleware { |chain| chain.add Sidekiq::Pausable }

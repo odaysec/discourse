@@ -70,6 +70,11 @@ class Demon::Sidekiq < ::Demon::Base
     [ENV["UNICORN_SIDEKIQ_MAX_RSS"].to_i, DEFAULT_MAX_ALLOWED_SIDEKIQ_RSS_MEGABYTES].max.megabytes
   end
 
+  def initialize(*, old: false, **)
+    @old = old
+    super(*, **)
+  end
+
   private
 
   def suppress_stdout
@@ -116,6 +121,7 @@ class Demon::Sidekiq < ::Demon::Base
     Discourse::Utils.execute_command("renice", "-n", "5", "-p", Process.pid.to_s)
 
     cli.parse(options)
+    ENV["OLD"] = "1" if @old
     load Rails.root + "config/initializers/100-sidekiq.rb"
     cli.run
   rescue => error

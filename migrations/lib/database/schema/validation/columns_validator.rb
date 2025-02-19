@@ -80,30 +80,27 @@ module Migrations::Database::Schema::Validation
     def validate_column_usage
       global = ::Migrations::Database::Schema::GlobalConfig.new(@schema_config)
 
-      if @excluded_column_names.empty?
-        column_names =
+      column_names =
+        if @excluded_column_names.empty?
           @existing_column_names - @included_column_names - @modified_column_names -
             global.excluded_column_names.to_a + @added_column_names
-
-        if column_names.any?
-          @errors << I18n.t(
-            "schema.validator.tables.not_all_columns_configured",
-            table_name: @table_name,
-            column_names: sort_and_join(column_names),
-          )
-        end
-      else
-        column_names =
+        else
           @existing_column_names - @excluded_column_names + @modified_column_names -
             global.excluded_column_names.to_a + @added_column_names
-
-        if column_names.empty?
-          @errors << I18n.t(
-            "schema.validator.tables.no_columns_configured",
-            table_name: @table_name,
-            column_names: sort_and_join(column_names),
-          )
         end
+
+      if column_names.empty?
+        @errors << I18n.t(
+          "schema.validator.tables.no_columns_configured",
+          table_name: @table_name,
+          column_names: sort_and_join(column_names),
+        )
+      else
+        @errors << I18n.t(
+          "schema.validator.tables.not_all_columns_configured",
+          table_name: @table_name,
+          column_names: sort_and_join(column_names),
+        )
       end
     end
   end

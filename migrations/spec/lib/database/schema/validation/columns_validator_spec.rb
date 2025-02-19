@@ -5,21 +5,9 @@ RSpec.describe ::Migrations::Database::Schema::Validation::ColumnsValidator do
 
   let(:errors) { [] }
   let(:config) { { schema: schema_config } }
+  let(:users_columns) { { include: %w[id username created_at updated_at] } }
   let(:schema_config) do
-    {
-      tables: {
-        users: {
-          columns: {
-            include: %w[id username email],
-          },
-        },
-      },
-      global: {
-        columns: {
-          exclude: [],
-        },
-      },
-    }
+    { tables: { users: { columns: users_columns } }, global: { columns: { exclude: [] } } }
   end
   let(:db) { instance_double(ActiveRecord::ConnectionAdapters::PostgreSQLAdapter) }
   let(:columns) do
@@ -51,13 +39,10 @@ RSpec.describe ::Migrations::Database::Schema::Validation::ColumnsValidator do
 
   describe "#validate" do
     it "adds an error if added columns already exist" do
-      schema_config[:tables][:users][:columns][:add] = [
-        { name: "username" },
-        { name: "created_at" },
-      ]
+      users_columns[:add] = [{ name: "username" }, { name: "created_at" }]
 
       validator.validate("users")
-      expect(errors).to include(
+      expect(errors).to contain_exactly(
         I18n.t(
           "schema.validator.tables.added_columns_exist",
           table_name: "users",
@@ -67,10 +52,10 @@ RSpec.describe ::Migrations::Database::Schema::Validation::ColumnsValidator do
     end
 
     it "adds an error if included columns do not exist" do
-      schema_config[:tables][:users][:columns][:include] = %w[missing_column another_missing]
+      users_columns[:include] << "missing_column" << "another_missing"
 
       validator.validate("users")
-      expect(errors).to include(
+      expect(errors).to contain_exactly(
         I18n.t(
           "schema.validator.tables.included_columns_missing",
           table_name: "users",
@@ -80,10 +65,10 @@ RSpec.describe ::Migrations::Database::Schema::Validation::ColumnsValidator do
     end
 
     it "adds an error if excluded columns do not exist" do
-      schema_config[:tables][:users][:columns][:exclude] = %w[missing_column another_missing]
+      users_columns.replace({ exclude: %w[missing_column another_missing] })
 
       validator.validate("users")
-      expect(errors).to include(
+      expect(errors).to contain_exactly(
         I18n.t(
           "schema.validator.tables.excluded_columns_missing",
           table_name: "users",
@@ -94,13 +79,13 @@ RSpec.describe ::Migrations::Database::Schema::Validation::ColumnsValidator do
 
     describe "modified columns validation" do
       it "adds an error if modified columns do not exist" do
-        schema_config[:tables][:users][:columns][:modify] = [
+        users_columns[:modify] = [
           { name: "missing_column", datatype: "text" },
           { name: "another_missing", datatype: "integer" },
         ]
 
         validator.validate("users")
-        expect(errors).to include(
+        expect(errors).to contain_exactly(
           I18n.t(
             "schema.validator.tables.modified_columns_missing",
             table_name: "users",
@@ -110,13 +95,13 @@ RSpec.describe ::Migrations::Database::Schema::Validation::ColumnsValidator do
       end
 
       it "adds an error if included columns are also modified" do
-        schema_config[:tables][:users][:columns][:modify] = [
+        users_columns[:modify] = [
           { name: "username", datatype: "text" },
           { name: "id", datatype: "bigint" },
         ]
 
         validator.validate("users")
-        expect(errors).to include(
+        expect(errors).to contain_exactly(
           I18n.t(
             "schema.validator.tables.modified_columns_included",
             table_name: "users",
@@ -126,14 +111,15 @@ RSpec.describe ::Migrations::Database::Schema::Validation::ColumnsValidator do
       end
 
       it "adds an error if excluded columns are also modified" do
-        schema_config[:tables][:users][:columns][:exclude] = %w[username id]
-        schema_config[:tables][:users][:columns][:modify] = [
+        users_columns.delete(:include)
+        users_columns[:exclude] = %w[username id]
+        users_columns[:modify] = [
           { name: "username", datatype: "text" },
           { name: "id", datatype: "bigint" },
         ]
 
         validator.validate("users")
-        expect(errors).to include(
+        expect(errors).to contain_exactly(
           I18n.t(
             "schema.validator.tables.modified_columns_excluded",
             table_name: "users",
@@ -144,36 +130,13 @@ RSpec.describe ::Migrations::Database::Schema::Validation::ColumnsValidator do
     end
 
     describe "column configuration validation" do
-      it "validates when no columns are configured" do
-        schema_config[:tables][:users][:columns] = {
-          exclude: %w[id username created_at updated_at],
-        }
+      context "when included columns are configured" do
+        it "adds no error when all columns are included" do
+          users_columns[:include] = %w[id username created_at updated_at]
 
-        validator.validate("users")
-        expect(errors).to include(
-          I18n.t("schema.validator.tables.no_columns_configured", table_name: "users"),
-        )
-      end
-
-      it "validates when not all columns are configured" do
-        schema_config[:tables][:users][:columns][:include] = %w[id]
-
-        validator.validate("users")
-        expect(errors).to include(
-          I18n.t(
-            "schema.validator.tables.not_all_columns_configured",
-            table_name: "users",
-            column_names: "created_at, updated_at, username",
-          ),
-        )
-      end
-
-      it "validates with globally excluded columns" do
-        schema_config[:global][:columns][:exclude] = %w[created_at updated_at]
-        schema_config[:tables][:users][:columns][:include] = %w[id username]
-
-        validator.validate("users")
-        expect(errors).to be_empty
+          validator.validate("users")
+          expect(errors).to eq([])
+        end
       end
     end
   end

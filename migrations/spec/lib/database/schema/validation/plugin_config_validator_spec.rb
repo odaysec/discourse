@@ -36,7 +36,7 @@ RSpec.describe ::Migrations::Database::Schema::Validation::PluginConfigValidator
 
     it "does not add errors when plugins match" do
       validator.validate
-      expect(errors).to be_empty
+      expect(errors).to eq([])
     end
   end
 end

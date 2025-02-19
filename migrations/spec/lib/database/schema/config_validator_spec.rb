@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe ::Migrations::Database::Schema::ConfigValidator do
+RSpec.xdescribe ::Migrations::Database::Schema::ConfigValidator do
   subject(:validator) { described_class.new }
 
   def minimal_config

@@ -70,7 +70,7 @@ RSpec.describe ::Migrations::Database::Schema::Validation::TablesValidator do
       schema_config[:tables][:topics] = {}
 
       validator.validate
-      expect(errors).to be_empty
+      expect(errors).to eq([])
     end
   end
 end

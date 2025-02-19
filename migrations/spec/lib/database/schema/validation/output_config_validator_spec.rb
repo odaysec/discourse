@@ -16,7 +16,7 @@ RSpec.describe ::Migrations::Database::Schema::Validation::OutputConfigValidator
   describe "#validate" do
     it "does not add any errors when config is correct" do
       validator.validate
-      expect(errors).to be_empty
+      expect(errors).to eq([])
     end
 
     it "adds an error when schema file directory does not exist" do
@@ -41,7 +41,9 @@ RSpec.describe ::Migrations::Database::Schema::Validation::OutputConfigValidator
       output_config[:models_namespace] = "Foo::Bar::IntermediateDB"
 
       validator.validate
-      expect(errors).to include(I18n.t("schema.validator.output.models_namespace_undefined"))
+      expect(errors).to contain_exactly(
+        I18n.t("schema.validator.output.models_namespace_undefined"),
+      )
     end
   end
 end

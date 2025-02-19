@@ -2,7 +2,7 @@
 
 module Migrations::Database::Schema
   class GlobalConfig
-    attr_reader :excluded_table_names, :excluded_column_names
+    attr_reader :excluded_column_names
 
     def initialize(schema_config)
       @schema_config = schema_config
@@ -25,12 +25,12 @@ module Migrations::Database::Schema
 
     def load_globally_excluded_table_names
       table_names = @schema_config.dig(:global, :tables, :exclude)
-      table_names.present? ? table_names.to_set : Set.new
+      table_names.presence&.to_set || Set.new
     end
 
     def load_globally_excluded_column_names
       column_names = @schema_config.dig(:global, :columns, :exclude)
-      column_names.present? ? column_names.to_set : Set.new
+      column_names.presence || []
     end
 
     def load_globally_modified_columns

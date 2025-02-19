@@ -28,7 +28,7 @@ RSpec.describe ::Migrations::Database::Schema::Validation::JsonSchemaValidator d
   describe "#validate" do
     it "validates correct config without errors" do
       validator.validate
-      expect(errors).to be_empty
+      expect(errors).to eq([])
     end
 
     it "detects missing required properties" do

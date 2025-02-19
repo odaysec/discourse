@@ -27,7 +27,7 @@ RSpec.describe ::Migrations::Database::Schema::Validation::GloballyExcludedTable
 
     it "doesn't add errors when all excluded tables exist" do
       validator.validate
-      expect(errors).to be_empty
+      expect(errors).to eq([])
     end
   end
 end

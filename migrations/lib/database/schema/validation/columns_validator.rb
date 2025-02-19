@@ -16,7 +16,8 @@ module Migrations::Database::Schema::Validation
       validate_included_columns
       validate_excluded_columns
       validate_modified_columns
-      validate_column_usage
+      validate_no_columns_configured
+      validate_not_all_columns_configured
     end
 
     private
@@ -77,29 +78,36 @@ module Migrations::Database::Schema::Validation
       end
     end
 
-    def validate_column_usage
+    def configured_column_names
       global = ::Migrations::Database::Schema::GlobalConfig.new(@schema_config)
 
       column_names =
         if @excluded_column_names.empty?
-          @existing_column_names - @included_column_names - @modified_column_names -
-            global.excluded_column_names.to_a + @added_column_names
+          (@included_column_names + @modified_column_names) & @existing_column_names
         else
-          @existing_column_names - @excluded_column_names + @modified_column_names -
-            global.excluded_column_names.to_a + @added_column_names
+          @existing_column_names - @excluded_column_names
         end
+      column_names - global.excluded_column_names + @added_column_names
+    end
 
-      if column_names.empty?
+    def validate_no_columns_configured
+      if configured_column_names.empty?
         @errors << I18n.t(
           "schema.validator.tables.no_columns_configured",
           table_name: @table_name,
           column_names: sort_and_join(column_names),
         )
-      else
+      end
+    end
+
+    def validate_not_all_columns_configured
+      return if @included_column_names.empty?
+
+      if (missing_column_names = @existing_column_names - configured_column_names).any?
         @errors << I18n.t(
           "schema.validator.tables.not_all_columns_configured",
           table_name: @table_name,
-          column_names: sort_and_join(column_names),
+          column_names: sort_and_join(missing_column_names),
         )
       end
     end

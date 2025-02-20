@@ -40,6 +40,7 @@ en:
         modified_columns_missing: "Missing modified columns in '%{table_name}': %{column_names}"
         modified_columns_included: "Modified columns included in '%{table_name}': %{column_names}"
         modified_columns_excluded: "Modified columns excluded in '%{table_name}': %{column_names}"
+        modified_columns_globally_excluded: "Modified columns globally excluded in '%{table_name}': %{column_names}"
 
         not_all_columns_configured: "Unconfigured columns in '%{table_name}': %{column_names}"
         no_columns_configured: "No columns configured in '%{table_name}'"

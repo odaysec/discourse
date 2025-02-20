@@ -970,7 +970,7 @@ RSpec.describe Stylesheet::Manager do
       Stylesheet::Manager.precompile_theme_css
 
       results = StylesheetCache.pluck(:target)
-      expect(results.size).to eq(46) # 8 core targets + 6 theme + 32 color schemes (light and dark mode per scheme)
+      expect(results.size).to eq(48) # 10 core targets + 6 theme + 32 color schemes (light and dark mode per scheme)
 
       theme_targets.each do |tar|
         expect(
@@ -986,7 +986,7 @@ RSpec.describe Stylesheet::Manager do
       Stylesheet::Manager.precompile_theme_css
 
       results = StylesheetCache.pluck(:target)
-      expect(results.size).to eq(46) # 8 core targets + 6 theme + 32 color schemes (light and dark mode per scheme)
+      expect(results.size).to eq(48) # 10 core targets + 6 theme + 32 color schemes (light and dark mode per scheme)
 
       expect(results).to include("color_definitions_#{scheme1.name}_#{scheme1.id}_#{user_theme.id}")
       expect(results).to include(

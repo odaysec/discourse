@@ -1039,10 +1039,12 @@ module Discourse
 
   SIDEKIQ_NAMESPACE = "sidekiq"
 
-  def self.sidekiq_redis_config
-    conf = GlobalSetting.redis_config.dup
-    conf[:namespace] = SIDEKIQ_NAMESPACE
-    conf
+  def self.sidekiq_redis_config(client: false)
+    redis_config = GlobalSetting.redis_config.dup
+    if client || !ENV["SIDEKIQ_OLD_CONFIG"]
+      return redis_config.merge(db: redis_config[:db].to_i + 1)
+    end
+    redis_config.merge(namespace: SIDEKIQ_NAMESPACE)
   end
 
   def self.static_doc_topic_ids

@@ -121,7 +121,7 @@ class Demon::Sidekiq < ::Demon::Base
     Discourse::Utils.execute_command("renice", "-n", "5", "-p", Process.pid.to_s)
 
     cli.parse(options)
-    ENV["OLD"] = "1" if @old
+    ENV["SIDEKIQ_OLD_CONFIG"] = "1" if @old
     load Rails.root + "config/initializers/100-sidekiq.rb"
     cli.run
   rescue => error

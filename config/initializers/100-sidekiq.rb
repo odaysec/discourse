@@ -5,12 +5,17 @@ require "sidekiq_logster_reporter"
 require "sidekiq_long_running_job_logger"
 require "mini_scheduler_long_running_job_logger"
 
-Sidekiq.configure_client { |config| config.redis = Discourse.sidekiq_redis_config }
+Sidekiq.configure_client do |config|
+  puts "=============== CLIENT CONFIG ======================================="
+  puts Discourse.sidekiq_redis_config(client: true)
+  puts "====================================================================="
+  config.redis = Discourse.sidekiq_redis_config(client: true)
+end
 
 Sidekiq.configure_server do |config|
-  puts "====================================================="
-  puts "===> OLD? #{!!ENV["OLD"]}"
-  puts "====================================================="
+  puts "=============== SERVER CONFIG ======================================="
+  puts Discourse.sidekiq_redis_config
+  puts "====================================================================="
   config.redis = Discourse.sidekiq_redis_config
 
   config.server_middleware { |chain| chain.add Sidekiq::Pausable }
@@ -87,7 +92,7 @@ Rails.application.config.to_prepare do
   Dir.glob("#{Rails.root}/app/jobs/scheduled/*.rb") { |f| require(f) } if Rails.env.development?
 
   MiniScheduler.configure do |config|
-    config.redis = Discourse.redis
+    config.redis = DiscourseRedis.new(Discourse.sidekiq_redis_config)
 
     config.job_exception_handler { |ex, context| Discourse.handle_job_exception(ex, context) }
 

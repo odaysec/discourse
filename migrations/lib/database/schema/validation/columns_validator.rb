@@ -87,14 +87,15 @@ module Migrations::Database::Schema::Validation
     end
 
     def configured_column_names
-      included_column_names =
-        if @included_column_names.any?
-          @included_column_names
-        else
-          @existing_column_names - @excluded_column_names
-        end
+      if @included_column_names.any?
+        included_column_names = @included_column_names
+        modified_column_names = @modified_column_names
+      else
+        included_column_names = @existing_column_names - @excluded_column_names
+        modified_column_names = included_column_names & @modified_column_names
+      end
 
-      column_names = (included_column_names + @modified_column_names).uniq & @existing_column_names
+      column_names = (included_column_names + modified_column_names).uniq & @existing_column_names
       column_names - @global.excluded_column_names + @added_column_names
     end
 

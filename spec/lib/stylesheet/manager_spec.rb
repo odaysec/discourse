@@ -913,7 +913,7 @@ RSpec.describe Stylesheet::Manager do
 
   describe ".precompile_css" do
     let(:core_targets) do
-      %w[desktop mobile admin wizard desktop_rtl mobile_rtl admin_rtl wizard_rtl]
+      %w[common desktop mobile admin wizard common_rtl desktop_rtl mobile_rtl admin_rtl wizard_rtl]
     end
 
     let(:theme_targets) { %i[desktop_theme mobile_theme] }

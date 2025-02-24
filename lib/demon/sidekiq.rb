@@ -18,7 +18,10 @@ class Demon::Sidekiq < ::Demon::Base
   def self.heartbeat_check
     sidekiq_processes_for_current_hostname = {}
 
-    Sidekiq::ProcessSet.new.each do |process|
+    processes =
+      Sidekiq::Client.via(Sidekiq.old_pool) { Sidekiq::ProcessSet.new.to_a } +
+        Sidekiq::ProcessSet.new.to_a
+    processes.each do |process|
       if process["hostname"] == HOSTNAME
         sidekiq_processes_for_current_hostname[process["pid"]] = process
       end

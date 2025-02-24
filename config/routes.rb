@@ -64,6 +64,10 @@ Discourse::Application.routes.draw do
         # only allow sidekiq in master site
         mount Sidekiq::Web => "/sidekiq", :constraints => AdminConstraint.new(require_master: true)
         mount Logster::Web => "/logs", :constraints => AdminConstraint.new
+        mount ->(env) { Sidekiq::Client.via(Sidekiq.old_pool) { Sidekiq::Web.call(env) } },
+              at: "/old-sidekiq",
+              as: "old_sidekiq",
+              constraints: AdminConstraint.new(require_master: true)
       end
     end
 

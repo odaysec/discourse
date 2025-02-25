@@ -3,13 +3,9 @@
 module Jobs
   class MigrateSidekiqScheduledJobs < ::Jobs::Onceoff
     def execute_onceoff(args)
-      jobs_to_migrate = Sidekiq::ScheduledSet.new.to_a
-      jobs_to_migrate.each do |job|
-        Sidekiq::Client.via(Sidekiq.old_pool) do
-          Sidekiq::ScheduledSet.new.schedule(job.score, job.item)
-        end
-      end
-      jobs_to_migrate.each(&:delete)
+      jobs_to_migrate = Sidekiq::Client.via(Sidekiq.old_pool) { Sidekiq::ScheduledSet.new.to_a }
+      jobs_to_migrate.each { |job| Sidekiq::ScheduledSet.new.schedule(job.score, job.item) }
+      Sidekiq::Client.via(Sidekiq.old_pool) { jobs_to_migrate.each(&:delete) }
     end
   end
 end

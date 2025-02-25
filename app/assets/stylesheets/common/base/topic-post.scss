@@ -568,7 +568,8 @@ nav.post-controls {
       }
     }
 
-    .widget-button {
+    .widget-button, // TODO (glimmer-post-stream): Remove this when glimmer-post-stream is enabled
+    .btn {
       &:hover {
         color: currentcolor;
         background: var(--danger-low);
@@ -979,7 +980,8 @@ aside.quote {
   }
 
   &.edits {
-    .widget-button {
+    .widget-button, // TODO (glimmer-post-stream): Remove this when glimmer-post-stream is enabled
+    .btn {
       display: flex;
       align-items: center;
 

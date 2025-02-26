@@ -88,9 +88,12 @@ before_fork do |server, worker|
       server.logger.info "starting #{sidekiqs} supervised sidekiqs"
 
       require "demon/sidekiq"
+      require "sidekiq_migration"
       Demon::Sidekiq.after_fork { DiscourseEvent.trigger(:sidekiq_fork_started) }
+
+      SidekiqMigration.call
+
       Demon::Sidekiq.start(sidekiqs, logger: server.logger)
-      Demon::Sidekiq.start(sidekiqs, logger: server.logger, old: true)
 
       if Discourse.enable_sidekiq_logging?
         # Trap USR1, so we can re-issue to sidekiq workers

@@ -5,7 +5,7 @@ require "sidekiq_logster_reporter"
 require "sidekiq_long_running_job_logger"
 require "mini_scheduler_long_running_job_logger"
 
-Sidekiq.configure_client { |config| config.redis = Discourse.sidekiq_redis_config(client: true) }
+Sidekiq.configure_client { |config| config.redis = Discourse.sidekiq_redis_config }
 
 Sidekiq.configure_server do |config|
   config.redis = Discourse.sidekiq_redis_config

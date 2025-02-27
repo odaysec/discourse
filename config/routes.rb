@@ -57,17 +57,10 @@ Discourse::Application.routes.draw do
       if Rails.env.development?
         mount Sidekiq::Web => "/sidekiq"
         mount Logster::Web => "/logs"
-        mount ->(env) { Sidekiq::Client.via(Sidekiq.old_pool) { Sidekiq::Web.call(env) } },
-              at: "/old-sidekiq",
-              as: "old_sidekiq"
       else
         # only allow sidekiq in master site
         mount Sidekiq::Web => "/sidekiq", :constraints => AdminConstraint.new(require_master: true)
         mount Logster::Web => "/logs", :constraints => AdminConstraint.new
-        mount ->(env) { Sidekiq::Client.via(Sidekiq.old_pool) { Sidekiq::Web.call(env) } },
-              at: "/old-sidekiq",
-              as: "old_sidekiq",
-              constraints: AdminConstraint.new(require_master: true)
       end
     end
 

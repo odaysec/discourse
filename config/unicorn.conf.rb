@@ -91,8 +91,6 @@ before_fork do |server, worker|
       require "sidekiq_migration"
       Demon::Sidekiq.after_fork { DiscourseEvent.trigger(:sidekiq_fork_started) }
 
-      SidekiqMigration.call
-
       Demon::Sidekiq.start(sidekiqs, logger: server.logger)
 
       if Discourse.enable_sidekiq_logging?

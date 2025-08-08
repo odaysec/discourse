@@ -71,7 +71,7 @@ class Reviewable < ActiveRecord::Base
   end
 
   def self.valid_type?(type)
-    type.to_s.safe_constantize.in?(types)
+    sti_names.include?(type.to_s) && type.to_s.safe_constantize.in?(types)
   end
 
   def self.types

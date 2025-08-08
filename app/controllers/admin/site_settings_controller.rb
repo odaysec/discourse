@@ -57,6 +57,10 @@ class Admin::SiteSettingsController < Admin::AdminController
     new_value = value_or_default(params[id])
 
     raise_access_hidden_setting(id)
+    allowed_settings = SiteSetting.all_settings.keys.select { |k| k.start_with?("default_") }
+    unless allowed_settings.include?(id)
+      raise Discourse::NotFound, "Invalid site setting id"
+    end
     previous_value = value_or_default(SiteSetting.public_send(id))
     json = {}
 
